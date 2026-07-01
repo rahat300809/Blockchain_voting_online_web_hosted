@@ -303,11 +303,11 @@ async function adminAuditLedger() {
   const lines = state.blockchain.map(b => {
     const ts   = new Date(b.timestamp).toLocaleString();
     const extra = b.type === 'VOTE'
-      ? ` | Candidate: ${b.data.candidate}`
+      ? ` | Voter: ${b.data.voterHash ? b.data.voterHash.slice(0, 10) : 'unknown'}... | Candidate: ${b.data.candidate}`
       : b.type === 'CANDIDATE'
         ? ` | Name: ${b.data.name}`
         : b.type === 'REGISTRATION'
-          ? ` | [Anonymous voter]`
+          ? ` | Registered: ${b.data.voterHash ? b.data.voterHash.slice(0, 10) : 'unknown'}...`
           : b.data.action
             ? ` | ${b.data.action}`
             : '';
@@ -455,9 +455,19 @@ function killAll() {
 }
 
 function getState() {
+  const votes = {};
+  state.candidates.forEach(c => { votes[c] = 0; });
+  state.blockchain
+    .filter(b => b.type === 'VOTE')
+    .forEach(b => {
+      if (b.data.candidate && votes[b.data.candidate] !== undefined) {
+        votes[b.data.candidate]++;
+      }
+    });
+
   return {
     candidates:      state.candidates,
-    votes:           {},
+    votes:           votes,
     votingDayOn:     state.votingDayOn,
     voterCount:      Object.keys(state.voterList).length,
     registeredCount: Object.values(state.voters).filter(v => v.secretKey).length,
