@@ -438,7 +438,13 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// SPA fallback
+// ── GET /api/tunnel/url — returns current active tunnel URL ──
+app.get('/api/tunnel/url', (req, res) => {
+  const url = detectTunnelUrl();
+  res.json({ ok: true, tunnelUrl: url || null, localUrl: `http://localhost:${PORT}` });
+});
+
+// SPA fallback — must be LAST
 app.get('*', (req, res) => {
   const indexFile = path.join(WEBSITE_DIR, 'index.html');
   if (fs.existsSync(indexFile)) {
@@ -491,12 +497,6 @@ async function tryPublishTunnelUrl() {
     console.warn('  ⚠️  No tunnel URL found — run START_SERVER.bat to create one');
   }
 }
-
-// ── GET /api/tunnel/url — returns current tunnel URL ────────
-app.get('/api/tunnel/url', (req, res) => {
-  const url = detectTunnelUrl();
-  res.json({ ok: true, tunnelUrl: url || null, localUrl: `http://localhost:${PORT}` });
-});
 
 server.listen(PORT, '0.0.0.0', async () => {
   console.log('');
