@@ -19,21 +19,23 @@
   let API_URL = null;
   let WS_URL  = null;
 
-  // Will be set when resolveServerUrl() completes
+  // Will be set when resolution completes
   let _resolveReady;
   const _readyPromise = new Promise(r => { _resolveReady = r; });
 
-  // Kick off async URL resolution immediately
+  // Kick off URL resolution immediately
   (async () => {
     try {
-      if (typeof window.resolveServerUrl === 'function') {
+      if (window.BLOCKVOTE_SERVER_URL) {
+        _serverBase = window.BLOCKVOTE_SERVER_URL;
+      } else if (typeof window.resolveServerUrl === 'function') {
         _serverBase = await window.resolveServerUrl();
       } else {
         // Fallback if config.js didn't load
         const h = window.location.hostname;
         _serverBase = (h === 'localhost' || h === '127.0.0.1')
           ? 'http://localhost:3000'
-          : `http://${h}:3000`;
+          : `${window.location.protocol}//${h}`; // Use same origin (cloud)
       }
     } catch (e) {
       _serverBase = 'http://localhost:3000';
