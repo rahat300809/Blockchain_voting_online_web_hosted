@@ -9,7 +9,7 @@
   <style>
     body {
       background-color: #030712;
-      background-image: radial-gradient(circle at 80% 20%, rgba(3, 7, 18, 0.45) 15%, #030712 85%), url('/img/blockchain-bg.png');
+      background-image: radial-gradient(circle at 85% 20%, rgba(3, 7, 18, 0.4) 20%, #030712 90%), url('/img/blockchain-bg.png');
       background-size: 1100px;
       background-position: right -150px top -100px;
       background-repeat: no-repeat;
@@ -21,6 +21,73 @@
         background-position: center top -100px;
         background-image: radial-gradient(circle at 50% 15%, rgba(3, 7, 18, 0.75) 10%, #030712 80%), url('/img/blockchain-bg.png');
       }
+    }
+
+    /* ─── Liquid Glowing Blobs ─── */
+    .liquid-blob {
+      position: fixed; border-radius: 50%; filter: blur(130px); opacity: 0.22; pointer-events: none; z-index: -2;
+      animation: floatBlob 25s infinite ease-in-out alternate;
+    }
+    .blob-1 { width: 500px; height: 500px; background: rgba(59,130,246,0.3); left: 5%; top: 10%; animation-duration: 20s; }
+    .blob-2 { width: 550px; height: 550px; background: rgba(6,182,212,0.25); right: 10%; top: 20%; animation-duration: 28s; }
+    .blob-3 { width: 400px; height: 400px; background: rgba(139,92,246,0.22); left: 30%; bottom: 5%; animation-duration: 22s; }
+    .blob-4 { width: 450px; height: 450px; background: rgba(16,185,129,0.18); right: 20%; bottom: 10%; animation-duration: 26s; }
+
+    @keyframes floatBlob {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      50% { transform: translate(70px, -60px) scale(1.15) rotate(180deg); }
+      100% { transform: translate(-50px, 90px) scale(0.9) rotate(360deg); }
+    }
+
+    /* ─── 3D Floating Glass Cubes ─── */
+    .cubes-3d-container {
+      position: fixed; inset: 0; pointer-events: none; z-index: -1; perspective: 1200px; overflow: hidden;
+    }
+    .cube-3d {
+      position: absolute; width: 60px; height: 60px; transform-style: preserve-3d;
+      animation: rotateCube 24s infinite linear;
+    }
+    .cube-1 { top: 16%; right: 15%; width: 70px; height: 70px; }
+    .cube-2 { top: 68%; left: 8%; width: 50px; height: 50px; animation-duration: 32s; animation-direction: reverse; }
+    .cube-3 { top: 48%; right: 45%; width: 55px; height: 55px; animation-duration: 20s; }
+
+    .cube-face {
+      position: absolute; width: 100%; height: 100%;
+      background: rgba(59, 130, 246, 0.04);
+      border: 1.5px solid rgba(99, 179, 237, 0.22);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.08) inset, 0 0 5px rgba(59, 130, 246, 0.03);
+      backdrop-filter: blur(2px);
+    }
+    .face-front  { transform: translateZ(var(--offset, 30px)); }
+    .face-back   { transform: rotateY(180deg) translateZ(var(--offset, 30px)); background: rgba(6, 182, 212, 0.04); border-color: rgba(6, 182, 212, 0.18); }
+    .face-left   { transform: rotateY(-90deg) translateZ(var(--offset, 30px)); }
+    .face-right  { transform: rotateY(90deg) translateZ(var(--offset, 30px)); background: rgba(139, 92, 246, 0.04); border-color: rgba(139, 92, 246, 0.18); }
+    .face-top    { transform: rotateX(90deg) translateZ(var(--offset, 30px)); }
+    .face-bottom { transform: rotateX(-90deg) translateZ(var(--offset, 30px)); }
+
+    .cube-1 { --offset: 35px; }
+    .cube-2 { --offset: 25px; }
+    .cube-3 { --offset: 27px; }
+
+    @keyframes rotateCube {
+      0% { transform: rotateX(0deg) rotateY(0deg) translate3d(0, 0, 0); }
+      50% { transform: rotateX(180deg) rotateY(90deg) translate3d(30px, -40px, 20px); }
+      100% { transform: rotateX(360deg) rotateY(360deg) translate3d(0, 0, 0); }
+    }
+
+    /* ─── Glassmorphism Cards Upgrade ─── */
+    .card, .terminal-card, .block-node {
+      background: rgba(10, 15, 30, 0.42) !important;
+      border: 1px solid rgba(255, 255, 255, 0.07) !important;
+      backdrop-filter: blur(24px) saturate(180%) !important;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .terminal-card:hover, .block-node:hover {
+      transform: translateY(-5px) scale(1.01) !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
+      background: rgba(10, 15, 30, 0.55) !important;
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.15) !important;
     }
 
     /* ─── Landing-specific styles ─── */
@@ -222,6 +289,40 @@
   </style>
 </head>
 <body>
+  <!-- Liquid Glowing Blobs Background -->
+  <div class="liquid-blob blob-1"></div>
+  <div class="liquid-blob blob-2"></div>
+  <div class="liquid-blob blob-3"></div>
+  <div class="liquid-blob blob-4"></div>
+
+  <!-- 3D Rotating Cubes Background -->
+  <div class="cubes-3d-container">
+    <div class="cube-3d cube-1">
+      <div class="cube-face face-front"></div>
+      <div class="cube-face face-back"></div>
+      <div class="cube-face face-left"></div>
+      <div class="cube-face face-right"></div>
+      <div class="cube-face face-top"></div>
+      <div class="cube-face face-bottom"></div>
+    </div>
+    <div class="cube-3d cube-2">
+      <div class="cube-face face-front"></div>
+      <div class="cube-face face-back"></div>
+      <div class="cube-face face-left"></div>
+      <div class="cube-face face-right"></div>
+      <div class="cube-face face-top"></div>
+      <div class="cube-face face-bottom"></div>
+    </div>
+    <div class="cube-3d cube-3">
+      <div class="cube-face face-front"></div>
+      <div class="cube-face face-back"></div>
+      <div class="cube-face face-left"></div>
+      <div class="cube-face face-right"></div>
+      <div class="cube-face face-top"></div>
+      <div class="cube-face face-bottom"></div>
+    </div>
+  </div>
+
   <div class="bg-grid" aria-hidden="true"></div>
   <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
   <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
