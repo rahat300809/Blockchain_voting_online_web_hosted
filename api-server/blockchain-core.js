@@ -348,6 +348,9 @@ async function agentIssueOtpFull(voterNumber, fingerprint) {
 // ── Voter Functions ───────────────────────────────────────────────────────────
 
 async function voterRegister(voterNumber, fingerprint) {
+  if (state.votingDayOn) {
+    return { ok: false, errors: ['[DENIED] Registration is closed on Voting Day!'] };
+  }
   if (!state.voterList[voterNumber]) {
     return { ok: false, errors: ['[DENIED] Voter number not in approved list — contact admin'] };
   }
@@ -450,6 +453,24 @@ async function voterVerifyVote(secretKey, fingerprint) {
   return { ok: true, found: false, messages: ['[NOT FOUND] No vote record for this voter'] };
 }
 
+async function voterVerifyOtp(secretKey, otp) {
+  const entry = Object.entries(state.voters).find(([num, v]) => v.secretKey === secretKey);
+  if (!entry) {
+    return { ok: false, errors: ['[DENIED] Voter account not found'] };
+  }
+  
+  const [voterNumber, voter] = entry;
+  if (!voter.otpCode || voter.otpCode !== otp) {
+    return { ok: false, errors: ['[DENIED] Invalid OTP. Verify with Polling Agent.'] };
+  }
+  
+  if (Date.now() > voter.otpExpiry) {
+    return { ok: false, errors: ['[DENIED] OTP has expired. Please request a new one.'] };
+  }
+  
+  return { ok: true, messages: ['[OK] OTP verified successfully'] };
+}
+
 function killAll() {
   // No-op: pure JS, no child processes to kill
 }
@@ -485,7 +506,7 @@ module.exports = {
   // Agent
   agentLogin, agentIssueOtpFull,
   // Voter
-  voterRegister, voterLogin, voterCastVote, voterVerifyVote,
+  voterRegister, voterLogin, voterVerifyOtp, voterCastVote, voterVerifyVote,
   // Utilities
   killAll, getState,
 };

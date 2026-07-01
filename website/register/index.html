@@ -192,6 +192,23 @@
     let secretKey = '';
     let voterNum = '';
 
+    // Check if voting day is active and block registration if so
+    async function checkVotingDayStatus() {
+      try {
+        const r = await api.get('/api/admin/voting-day-status');
+        if (r.ok && r.votingDayOn) {
+          const form = document.getElementById('regForm');
+          if (form) form.style.display = 'none';
+          ui.showAlert('regAlert', '🛑 Registration Closed: Voter registration is not allowed while Voting Day is active. Please contact the administrator.', 'error');
+          const btn = document.getElementById('regBtn');
+          if (btn) btn.disabled = true;
+        }
+      } catch (err) {
+        console.error('Error checking voting day status:', err);
+      }
+    }
+    checkVotingDayStatus();
+
     function setStep(n) {
       for (let i = 1; i <= 3; i++) {
         const s = document.getElementById(`step${i}`);

@@ -351,6 +351,17 @@ app.post('/api/voter/login', async (req, res) => {
   }
 });
 
+app.post('/api/voter/verify-otp', async (req, res) => {
+  const { secretKey, otp } = req.body;
+  if (!secretKey || !otp) return res.status(400).json({ ok: false, errors: ['Missing fields'] });
+  try {
+    const r = await bridge.voterVerifyOtp(secretKey, otp);
+    res.json(r);
+  } catch (err) {
+    res.status(500).json({ ok: false, errors: [err.message] });
+  }
+});
+
 app.get('/api/voter/candidates', async (req, res) => {
   try {
     // Fetch candidates from admin results (most reliable source)

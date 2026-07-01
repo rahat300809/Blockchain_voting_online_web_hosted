@@ -411,55 +411,139 @@
 
           <!-- Panel: Technology Used -->
           <div class="panel" id="panel-tech">
-            <div class="card role-admin">
+            <div class="card role-admin" style="max-width: 900px; margin: 0 auto;">
               <div class="card-header">
-                <div class="card-icon role-admin" aria-hidden="true">🛠️</div>
+                <div class="card-icon role-admin" aria-hidden="true" style="background: rgba(245,158,11,0.15); color: var(--c-admin);">🛠️</div>
                 <div>
-                  <div class="card-title">Technology Stack</div>
-                  <div class="card-subtitle">Technologies powering the BlockVote platform and their purpose</div>
+                  <div class="card-title">Technology Stack & Code Mapping</div>
+                  <div class="card-subtitle">Technical architecture of the BlockVote system and source code locations</div>
                 </div>
               </div>
               
-              <div class="alert alert-info mb-md" style="margin-top: 16px">
+              <div class="alert alert-info mb-lg" style="margin-top: 16px;">
                 <span class="alert-icon" aria-hidden="true">💡</span>
-                <div>Here is the breakdown of tools, frameworks, and protocols powering the unbreakable blockchain voting platform:</div>
+                <div>Use this screen to present the technical architecture of the system. This documents where each core technology is implemented across the codebase.</div>
               </div>
-              
-              <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px">
-                <div class="card" style="background: rgba(0,0,0,0.2); border: 1px solid var(--c-border); padding: 16px;">
-                  <div style="font-weight: 700; color: var(--c-primary); margin-bottom: 4px;">Node.js & Express API Backend</div>
-                  <div style="font-size: 0.85rem; color: var(--c-text-muted);">Serves the REST API endpoints and handles the WebSocket server logic, request validation, static assets serving, and CORS security.</div>
-                </div>
+
+              <!-- Bento Grid for presentation -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 24px;">
                 
-                <div class="card" style="background: rgba(0,0,0,0.2); border: 1px solid var(--c-border); padding: 16px;">
-                  <div style="font-weight: 700; color: var(--c-success); margin-bottom: 4px;">Pure JavaScript Blockchain Engine (`blockchain-core.js`)</div>
-                  <div style="font-size: 0.85rem; color: var(--c-text-muted);">Maintains the cryptographically secure blockchain, executes Proof-of-Work block mining, implements AES-256-CBC file database encryption, and handles voter registrations/tamper verification.</div>
+                <!-- Card 1: Pure JS Blockchain -->
+                <div class="card" style="background: rgba(10, 15, 30, 0.6); border: 1px solid rgba(16, 185, 129, 0.2) !important; padding: 20px; display: flex; flex-direction: column; gap: 10px; justify-content: space-between;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                      <span style="font-size: 1.2rem;">🔗</span>
+                      <div style="font-weight: 700; color: #34d399; font-size: 0.95rem;">JS Blockchain Engine</div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--c-text-muted); line-height: 1.5;">
+                      Handles block validation, in-memory state caching, block mining, and local persistence.
+                    </div>
+                  </div>
+                  <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px; font-family: var(--font-mono); font-size: 0.72rem; color: #34d399;">
+                    📍 api-server/<a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/api-server/blockchain-core.js" style="color: inherit; text-decoration: underline;">blockchain-core.js</a>
+                  </div>
                 </div>
-                
-                <div class="card" style="background: rgba(0,0,0,0.2); border: 1px solid var(--c-border); padding: 16px;">
-                  <div style="font-weight: 700; color: #a855f7; margin-bottom: 4px;">C++ Core Legacy Alignment (`core.cpp`)</div>
-                  <div style="font-size: 0.85rem; color: var(--c-text-muted);">Maintains historical algorithm alignment; the Node.js backend dynamically reads and parses structural configurations from C++ source files directly.</div>
+
+                <!-- Card 2: Cryptographic Algorithms -->
+                <div class="card" style="background: rgba(10, 15, 30, 0.6); border: 1px solid rgba(236, 72, 153, 0.2) !important; padding: 20px; display: flex; flex-direction: column; gap: 10px; justify-content: space-between;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                      <span style="font-size: 1.2rem;">🔐</span>
+                      <div style="font-weight: 700; color: #f472b6; font-size: 0.95rem;">AES-256-CBC & SHA-256</div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--c-text-muted); line-height: 1.5;">
+                      Encrypts on-disk storage file `election_data.json.enc` with AES-256-CBC, hashes blocks, and generates secure voter key slices with SHA-256.
+                    </div>
+                  </div>
+                  <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px; font-family: var(--font-mono); font-size: 0.72rem; color: #f472b6; line-height: 1.4;">
+                    📍 JS: <a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/api-server/blockchain-core.js#L91" style="color: inherit; text-decoration: underline;">blockchain-core.js:L91-108</a><br>
+                    📍 C++: <a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/core.cpp#L72" style="color: inherit; text-decoration: underline;">core.cpp:L72-108</a>
+                  </div>
                 </div>
-                
-                <div class="card" style="background: rgba(0,0,0,0.2); border: 1px solid var(--c-border); padding: 16px;">
-                  <div style="font-weight: 700; color: #f59e0b; margin-bottom: 4px;">Fly.io Cloud Infrastructure</div>
-                  <div style="font-size: 0.85rem; color: var(--c-text-muted);">Hosts the API backend dynamically inside a Docker container with an attached persistent SSD volume to persist database records 24/7.</div>
+
+                <!-- Card 3: WebSockets Real-Time Sync -->
+                <div class="card" style="background: rgba(10, 15, 30, 0.6); border: 1px solid rgba(59, 130, 246, 0.2) !important; padding: 20px; display: flex; flex-direction: column; gap: 10px; justify-content: space-between;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                      <span style="font-size: 1.2rem;">⚡</span>
+                      <div style="font-weight: 700; color: #60a5fa; font-size: 0.95rem;">Real-Time WebSockets</div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--c-text-muted); line-height: 1.5;">
+                      Synchronizes connections, broadcasts live votes (`vote_cast`), state changes (`voting_day_toggled`), and resets instantly across all active terminals.
+                    </div>
+                  </div>
+                  <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px; font-family: var(--font-mono); font-size: 0.72rem; color: #60a5fa; line-height: 1.4;">
+                    📍 Server: <a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/api-server/server.js#L50" style="color: inherit; text-decoration: underline;">server.js:L50-78</a><br>
+                    📍 Client: <a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/website/js/websocket-client.js#L53" style="color: inherit; text-decoration: underline;">websocket-client.js:L53-141</a>
+                  </div>
                 </div>
-                
-                <div class="card" style="background: rgba(0,0,0,0.2); border: 1px solid var(--c-border); padding: 16px;">
-                  <div style="font-weight: 700; color: #3b82f6; margin-bottom: 4px;">Firebase Hosting</div>
-                  <div style="font-size: 0.85rem; color: var(--c-text-muted);">Deploys and hosts the fast, globally distributed static frontend client interface (HTML, CSS, JS) at blockchain300809.web.app.</div>
+
+                <!-- Card 4: Web Server & REST API -->
+                <div class="card" style="background: rgba(10, 15, 30, 0.6); border: 1px solid rgba(245, 158, 11, 0.2) !important; padding: 20px; display: flex; flex-direction: column; gap: 10px; justify-content: space-between;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                      <span style="font-size: 1.2rem;">🌐</span>
+                      <div style="font-weight: 700; color: #fb923c; font-size: 0.95rem;">REST API & Static Web</div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--c-text-muted); line-height: 1.5;">
+                      Express server that serves administrative commands, registration rolls, voter sessions, and handles CORS security.
+                    </div>
+                  </div>
+                  <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px; font-family: var(--font-mono); font-size: 0.72rem; color: #fb923c;">
+                    📍 api-server/<a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/api-server/server.js" style="color: inherit; text-decoration: underline;">server.js</a> (Express endpoints)
+                  </div>
                 </div>
-                
-                <div class="card" style="background: rgba(0,0,0,0.2); border: 1px solid var(--c-border); padding: 16px;">
-                  <div style="font-weight: 700; color: #10b981; margin-bottom: 4px;">WebSockets (WS/WSS Protocol)</div>
-                  <div style="font-size: 0.85rem; color: var(--c-text-muted);">Enables instant, real-time sync between client terminals, the live results dashboard tally, and the public blockchain ledger without needing manual reloads.</div>
+
+                <!-- Card 5: Firebase Cloud Sync -->
+                <div class="card" style="background: rgba(10, 15, 30, 0.6); border: 1px solid rgba(139, 92, 246, 0.2) !important; padding: 20px; display: flex; flex-direction: column; gap: 10px; justify-content: space-between;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                      <span style="font-size: 1.2rem;">☁️</span>
+                      <div style="font-weight: 700; color: #c084fc; font-size: 0.95rem;">Firestore Synchronization</div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--c-text-muted); line-height: 1.5;">
+                      Synchronizes metadata (votes count, candidates, audit logs) to Firebase Firestore for real-time remote terminal syncing.
+                    </div>
+                  </div>
+                  <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px; font-family: var(--font-mono); font-size: 0.72rem; color: #c084fc;">
+                    📍 api-server/<a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/api-server/firebase-sync.js" style="color: inherit; text-decoration: underline;">firebase-sync.js</a>
+                  </div>
                 </div>
-                
-                <div class="card" style="background: rgba(0,0,0,0.2); border: 1px solid var(--c-border); padding: 16px;">
-                  <div style="font-weight: 700; color: #ec4899; margin-bottom: 4px;">AES-256-CBC & SHA-256 Cryptography</div>
-                  <div style="font-size: 0.85rem; color: var(--c-text-muted);">Natively validates cryptographic signatures, hashes blocks using SHA-256 for chain integrity, encrypts stored voting database files using AES-256, and generates highly secure 6-digit verification OTP codes.</div>
+
+                <!-- Card 6: Docker & Fly.io deployment -->
+                <div class="card" style="background: rgba(10, 15, 30, 0.6); border: 1px solid rgba(6, 182, 212, 0.2) !important; padding: 20px; display: flex; flex-direction: column; gap: 10px; justify-content: space-between;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                      <span style="font-size: 1.2rem;">🐳</span>
+                      <div style="font-weight: 700; color: #22d3ee; font-size: 0.95rem;">Cloud Infrastructure</div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--c-text-muted); line-height: 1.5;">
+                      Containerized Node.js setup using an Alpine Docker image with volume mounts to safeguard block files permanently.
+                    </div>
+                  </div>
+                  <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px; font-family: var(--font-mono); font-size: 0.72rem; color: #22d3ee; line-height: 1.4;">
+                    📍 Docker: <a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/Dockerfile" style="color: inherit; text-decoration: underline;">Dockerfile</a><br>
+                    📍 Config: <a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/fly.toml" style="color: inherit; text-decoration: underline;">fly.toml</a>
+                  </div>
                 </div>
+
+                <!-- Card 7: C++ P2P Consensus System -->
+                <div class="card" style="background: rgba(10, 15, 30, 0.6); border: 1px solid rgba(244, 63, 94, 0.2) !important; padding: 20px; display: flex; flex-direction: column; gap: 10px; justify-content: space-between; grid-column: span 1;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                      <span style="font-size: 1.2rem;">🖥️</span>
+                      <div style="font-weight: 700; color: #fb7185; font-size: 0.95rem;">C++ Core & P2P Tunnels</div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--c-text-muted); line-height: 1.5;">
+                      Legacy high-speed C++ cryptographic core with P2P networking support, linked to Node.js via stdout stream bridging.
+                    </div>
+                  </div>
+                  <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 8px; font-family: var(--font-mono); font-size: 0.72rem; color: #fb7185; line-height: 1.4;">
+                    📍 Core source: <a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/core.cpp" style="color: inherit; text-decoration: underline;">core.cpp</a><br>
+                    📍 Bridge link: <a href="file:///f:/5th sem/Modified Block Chain - Copy - Copy - Copy/api-server/bridge.js" style="color: inherit; text-decoration: underline;">bridge.js</a>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>

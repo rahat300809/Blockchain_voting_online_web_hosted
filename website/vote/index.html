@@ -371,9 +371,23 @@
         return;
       }
       ui.clearAlert('otpAlert');
-      // Load candidates while OTP is accepted
-      await loadCandidates();
-      goToStep(3);
+      
+      const btn = document.getElementById('verifyOtpBtn');
+      ui.setButtonLoading(btn, true);
+      
+      try {
+        const r = await api.post('/api/voter/verify-otp', { secretKey: sessionKey, otp: enteredOtp });
+        if (r.ok) {
+          // Load candidates while OTP is accepted
+          await loadCandidates();
+          goToStep(3);
+        } else {
+          ui.showAlert('otpAlert', r.errors?.join(' ') || 'Invalid OTP. Please check with your Polling Agent.', 'error');
+        }
+      } catch (err) {
+        ui.showAlert('otpAlert', 'Server error: ' + err.message, 'error');
+      }
+      ui.setButtonLoading(btn, false);
     });
 
     // ─── STEP 3: Candidates ───
