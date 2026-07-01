@@ -9,17 +9,12 @@
   <style>
     body {
       background-color: #030712;
-      background-image: radial-gradient(circle at 85% 20%, rgba(3, 7, 18, 0.4) 20%, #030712 90%), url('/img/blockchain-bg.png');
-      background-size: 1100px;
-      background-position: right -150px top -100px;
-      background-repeat: no-repeat;
+      background-image: radial-gradient(circle at 50% 50%, #0d1527 0%, #030712 100%);
       background-attachment: fixed;
     }
     @media (max-width: 992px) {
       body {
-        background-size: 800px;
-        background-position: center top -100px;
-        background-image: radial-gradient(circle at 50% 15%, rgba(3, 7, 18, 0.75) 10%, #030712 80%), url('/img/blockchain-bg.png');
+        background-image: radial-gradient(circle at 50% 50%, #0b1120 0%, #030712 100%);
       }
     }
 
@@ -92,9 +87,27 @@
 
     /* ─── Landing-specific styles ─── */
     .hero {
-      padding: 80px 0 60px;
-      text-align: center;
+      padding: 60px 0 40px;
       position: relative;
+    }
+    .hero-split {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 48px;
+      align-items: center;
+      text-align: left;
+    }
+    @media (max-width: 992px) {
+      .hero-split {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 32px;
+      }
+      .hero-left {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
@@ -345,39 +358,57 @@
     <main class="page-wrapper">
       <div class="container">
 
-        <!-- Hero -->
+        <!-- Hero Section -->
         <section class="hero" aria-labelledby="hero-heading">
-          <div class="hero-badge">
-            <div class="hero-badge-dot" aria-hidden="true"></div>
-            Decentralized · Real-Time · Immutable
-          </div>
-          <h1 class="hero-title" id="hero-heading">
-            The <span class="gradient">Unbreakable</span><br>Voting System
-          </h1>
-          <p class="hero-desc">
-            An unbreakable, decentralized platform for digital democracy.
-            Every ballot is cryptographically sealed, chained sequentially, and verified across P2P networks in real-time with absolute voter privacy.
-            Zero trust — Zero compromise.
-          </p>
-        </section>
-
-        <!-- Live Stats -->
-        <section class="live-counter" aria-label="Live election statistics">
-          <div class="lc-item">
-            <div class="lc-value" id="statVotesCast">—</div>
-            <div class="lc-label">Votes Cast</div>
-          </div>
-          <div class="lc-item">
-            <div class="lc-value" id="statCandidates">—</div>
-            <div class="lc-label">Candidates</div>
-          </div>
-          <div class="lc-item">
-            <div class="lc-value" id="statRegistered">—</div>
-            <div class="lc-label">Registered Voters</div>
-          </div>
-          <div class="lc-item">
-            <div class="lc-value" id="statClients">—</div>
-            <div class="lc-label">Active Terminals</div>
+          <div class="hero-split">
+            <!-- Left Column: Branding details -->
+            <div class="hero-left">
+              <div class="hero-badge">
+                <div class="hero-badge-dot" aria-hidden="true"></div>
+                Decentralized · Real-Time · Immutable
+              </div>
+              <h1 class="hero-title" id="hero-heading">
+                The <span class="gradient">Unbreakable</span><br>Voting System
+              </h1>
+              <p class="hero-desc" style="max-width: 540px; margin-bottom: 32px;">
+                An unbreakable, decentralized platform for digital democracy. Every ballot is cryptographically sealed, chained sequentially, and verified across P2P networks in real-time with absolute voter privacy. Zero trust — Zero compromise.
+              </p>
+              <div style="display: flex; gap: 16px;">
+                <a href="#terminals-heading" class="btn btn-primary btn-lg" style="display: inline-flex; align-items: center; gap: 8px;">
+                  🗳️ Go to Voting Portals
+                </a>
+              </div>
+            </div>
+            
+            <!-- Right Column: Live Donut Tally Chart -->
+            <div class="hero-right">
+              <div class="card role-admin" style="background: rgba(10, 15, 30, 0.42); margin: 0; width: 100%;">
+                <div class="card-header">
+                  <div class="card-icon role-admin" style="background: rgba(245,158,11,0.15)">📊</div>
+                  <div>
+                    <div class="card-title">Live Election Tally</div>
+                    <div class="card-subtitle">Real-time vote distribution from the blockchain</div>
+                  </div>
+                </div>
+                <div class="tally-layout" style="display: grid; grid-template-columns: 140px 1fr; gap: 24px; align-items: center; margin-top: 24px;">
+                  <!-- Left: Graph Diagram -->
+                  <div class="chart-wrapper" style="position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,0.02); border-radius: 50%; padding: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                    <svg id="donutChart" viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                      <circle cx="18" cy="18" r="15.915" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="3"></circle>
+                      <g id="donutSegments"></g>
+                    </svg>
+                    <div style="position: absolute; text-align: center;">
+                      <div id="chartTotalVotes" style="font-size: 1.6rem; font-weight: 850; font-family: var(--font-mono); color: #fff; line-height: 1.1;">0</div>
+                      <div style="font-size: 0.58rem; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">Votes</div>
+                    </div>
+                  </div>
+                  <!-- Right: Data of Vote Counts -->
+                  <div id="resultsContainer" class="results-container" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+                    <div class="text-muted" style="font-size:0.875rem">No votes recorded yet. Loading...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
         
@@ -470,52 +501,21 @@
           </div>
         </section>
 
-        <!-- Live Results & Public Blockchain Ledger -->
+        <!-- Public Blockchain Ledger -->
         <section class="section" style="margin-bottom: 64px">
-          <div class="landing-split" style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px">
-            <!-- Card: Live Results -->
-            <div class="card role-admin" style="background: rgba(0,0,0,0.15)">
-              <div class="card-header">
-                <div class="card-icon role-admin" style="background: rgba(59,130,246,0.15)">📊</div>
-                <div>
-                  <div class="card-title">Live Election Tally</div>
-                  <div class="card-subtitle">Real-time vote distribution from the blockchain</div>
-                </div>
-              </div>
-              <div class="tally-layout" style="display: grid; grid-template-columns: 140px 1fr; gap: 24px; align-items: center; margin-top: 24px;">
-                <!-- Left: Graph Diagram -->
-                <div class="chart-wrapper" style="position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,0.02); border-radius: 50%; padding: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                  <svg id="donutChart" viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
-                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="3"></circle>
-                    <g id="donutSegments"></g>
-                  </svg>
-                  <div style="position: absolute; text-align: center;">
-                    <div id="chartTotalVotes" style="font-size: 1.6rem; font-weight: 850; font-family: var(--font-mono); color: #fff; line-height: 1.1;">0</div>
-                    <div style="font-size: 0.58rem; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">Votes</div>
-                  </div>
-                </div>
-                <!-- Right: Data of Vote Counts -->
-                <div id="resultsContainer" class="results-container" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
-                  <div class="text-muted" style="font-size:0.875rem">No votes recorded yet. Loading...</div>
-                </div>
+          <div class="card role-voter" style="background: rgba(10, 15, 30, 0.42); width: 100%;">
+            <div class="card-header">
+              <div class="card-icon role-voter" style="background: rgba(16,185,129,0.15)">📜</div>
+              <div>
+                <div class="card-title">Public Blockchain Ledger</div>
+                <div class="card-subtitle">Immutable audit trail of all transactions and blocks</div>
               </div>
             </div>
-
-            <!-- Card: Public Blockchain Ledger -->
-            <div class="card role-voter" style="background: rgba(0,0,0,0.15)">
-              <div class="card-header">
-                <div class="card-icon role-voter" style="background: rgba(16,185,129,0.15)">📜</div>
-                <div>
-                  <div class="card-title">Public Blockchain Ledger</div>
-                  <div class="card-subtitle">Immutable audit trail of all transactions and blocks</div>
-                </div>
-              </div>
-              <p class="text-muted" style="font-size: 0.8rem; margin: 12px 0 16px">
-                Every voter account, permission change, configuration, and vote is recorded in real-time.
-              </p>
-              <div id="publicLedgerLog" class="integrity-log" style="max-height: 250px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.72rem; padding: 12px; background: rgba(0,0,0,0.3); border-radius: var(--r-md); text-align: left; line-height: 1.5">
-                <span class="log-info">>>> Loading ledger entries...</span>
-              </div>
+            <p class="text-muted" style="font-size: 0.82rem; margin: 12px 0 16px">
+              Every voter account, permission change, configuration, and vote is recorded in real-time on the distributed ledger.
+            </p>
+            <div id="publicLedgerLog" class="integrity-log" style="max-height: 250px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.75rem; padding: 16px; background: rgba(0,0,0,0.3); border-radius: var(--r-md); text-align: left; line-height: 1.6">
+              <span class="log-info">>>> Loading ledger entries...</span>
             </div>
           </div>
         </section>
