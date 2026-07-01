@@ -24,10 +24,10 @@ const path   = require('path');
 const DATA_DIR  = process.env.DATA_DIR || path.join(__dirname, '..');
 const DATA_FILE = path.join(DATA_DIR, 'election_data.json');
 
-const ADMIN_ID   = process.env.ADMIN_ID   || 'ADMIN001';
-const ADMIN_PASS = process.env.ADMIN_PASS || 'admin123';
-const AGENT_ID   = process.env.AGENT_ID   || 'AGENT001';
-const AGENT_PASS = process.env.AGENT_PASS || 'agent123';
+const ADMIN_ID   = process.env.ADMIN_ID   || 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'system';
+const AGENT_ID   = process.env.AGENT_ID   || 'agent';
+const AGENT_PASS = process.env.AGENT_PASS || 'agentpass';
 
 const ENC_KEY = crypto.scryptSync(
   process.env.ENCRYPT_KEY || 'BlockVote-AES256-Key-2024',

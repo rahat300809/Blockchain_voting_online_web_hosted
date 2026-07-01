@@ -11,8 +11,8 @@ primary_region = "sin"   # Singapore — closest to Bangladesh
   PORT      = "3000"
   NODE_ENV  = "production"
   DATA_DIR  = "/data"
-  ADMIN_ID  = "ADMIN001"
-  AGENT_ID  = "AGENT001"
+  ADMIN_ID  = "admin"
+  AGENT_ID  = "agent"
 
 # HTTP service config
 [http_service]
