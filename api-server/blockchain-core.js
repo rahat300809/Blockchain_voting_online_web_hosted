@@ -24,10 +24,52 @@ const path   = require('path');
 const DATA_DIR  = process.env.DATA_DIR || path.join(__dirname, '..');
 const DATA_FILE = path.join(DATA_DIR, 'election_data.json');
 
-const ADMIN_ID   = process.env.ADMIN_ID   || 'admin';
-const ADMIN_PASS = process.env.ADMIN_PASS || 'system';
-const AGENT_ID   = process.env.AGENT_ID   || 'agent';
-const AGENT_PASS = process.env.AGENT_PASS || 'agentpass';
+// Default credentials (fallback)
+let ADMIN_ID   = 'admin';
+let ADMIN_PASS = 'system';
+let AGENT_ID   = 'agent';
+let AGENT_PASS = 'agentpass';
+
+function loadCredentialsFromCpp() {
+  try {
+    const candidates = [
+      path.join(__dirname, 'core.cpp'),
+      path.join(__dirname, '..', 'core.cpp'),
+      path.join(process.cwd(), 'core.cpp'),
+    ];
+    let content = null;
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        content = fs.readFileSync(p, 'utf8');
+        break;
+      }
+    }
+    if (content) {
+      const matchAdminId   = content.match(/const\s+string\s+ADMIN_ID\s*=\s*"([^"]+)"/);
+      const matchAdminPass = content.match(/const\s+string\s+ADMIN_PASS\s*=\s*"([^"]+)"/);
+      const matchAgentId   = content.match(/const\s+string\s+AGENT_ID\s*=\s*"([^"]+)"/);
+      const matchAgentPass = content.match(/const\s+string\s+AGENT_PASS\s*=\s*"([^"]+)"/);
+
+      if (matchAdminId && !process.env.ADMIN_ID)     ADMIN_ID   = matchAdminId[1];
+      if (matchAdminPass && !process.env.ADMIN_PASS) ADMIN_PASS = matchAdminPass[1];
+      if (matchAgentId && !process.env.AGENT_ID)     AGENT_ID   = matchAgentId[1];
+      if (matchAgentPass && !process.env.AGENT_PASS) AGENT_PASS = matchAgentPass[1];
+
+      console.log(`[Blockchain] Dynamically loaded C++ credentials — Admin: "${ADMIN_ID}", Agent: "${AGENT_ID}"`);
+    }
+  } catch (err) {
+    console.warn('[Blockchain] Failed to load credentials from core.cpp:', err.message);
+  }
+}
+
+// Perform initial load
+loadCredentialsFromCpp();
+
+// Override with env variables if provided
+if (process.env.ADMIN_ID)   ADMIN_ID   = process.env.ADMIN_ID;
+if (process.env.ADMIN_PASS) ADMIN_PASS = process.env.ADMIN_PASS;
+if (process.env.AGENT_ID)   AGENT_ID   = process.env.AGENT_ID;
+if (process.env.AGENT_PASS) AGENT_PASS = process.env.AGENT_PASS;
 
 const ENC_KEY = crypto.scryptSync(
   process.env.ENCRYPT_KEY || 'BlockVote-AES256-Key-2024',

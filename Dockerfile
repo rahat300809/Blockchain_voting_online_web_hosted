@@ -19,6 +19,7 @@ RUN npm ci --only=production && npm cache clean --force
 COPY api-server/server.js         ./server.js
 COPY api-server/blockchain-core.js ./blockchain-core.js
 COPY api-server/firebase-sync.js  ./firebase-sync.js
+COPY core.cpp                     ./core.cpp
 
 # Copy website for static serving
 COPY website/ /website/
