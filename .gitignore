@@ -1,15 +1,44 @@
-# Ignore node modules
+# Node modules
 node_modules/
 api-server/node_modules/
 
-# Ignore local logs and temporary files
+# Logs (generated at runtime)
 *.log
-1
-7
-asem.txt
-data.txt.bak
+server.log
+pinggy.log
+pinggy_tunnel.log
+serveo_tunnel.log
+localtunnel.log
+lhr.log
+lhr2.log
+lhr3.log
+
+# Compiled Windows executables (too large for GitHub, rebuild locally)
+*.exe
+
+# Blockchain data (sensitive runtime data)
+election_data.enc
 election_data.enc.bak
 
-# Ignore OS files
+# Firebase secrets (NEVER commit these)
+api-server/serviceAccountKey.json
+serviceAccountKey.json
+
+# Local temp files
+asem.txt
+data.txt
+data.txt.bak
+1
+3
+7
+seven
+admin.cpp
+agent.cpp
+voter.cpp
+build.sh
+core.cpp
+attacker.cpp
+
+# OS files
 .DS_Store
 Thumbs.db

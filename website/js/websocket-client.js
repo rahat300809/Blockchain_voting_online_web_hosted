@@ -12,26 +12,37 @@
   'use strict';
 
   // ──────────────────────────────────────────────────────────────
-  // Configuration
+  // Configuration (resolved asynchronously via config.js)
   // ──────────────────────────────────────────────────────────────
 
-  // ── Server URL Resolution ──────────────────────────────────
-  // Priority 1: window.BLOCKVOTE_SERVER_URL  (set in /js/config.js for production/ngrok)
-  // Priority 2: Same host on port 3000 (LAN use — all PCs on same network)
-  let _serverBase;
-  if (window.BLOCKVOTE_SERVER_URL) {
-    // Strip trailing slash
-    _serverBase = window.BLOCKVOTE_SERVER_URL.replace(/\/+$/, '');
-  } else {
-    const _host = window.location.hostname || 'localhost';
-    if (_host.endsWith('.web.app') || _host.endsWith('.firebaseapp.com')) {
-      _serverBase = `http://localhost:3000`;
-    } else {
-      _serverBase = `http://${_host}:3000`;
+  let _serverBase = null;
+  let API_URL = null;
+  let WS_URL  = null;
+
+  // Will be set when resolveServerUrl() completes
+  let _resolveReady;
+  const _readyPromise = new Promise(r => { _resolveReady = r; });
+
+  // Kick off async URL resolution immediately
+  (async () => {
+    try {
+      if (typeof window.resolveServerUrl === 'function') {
+        _serverBase = await window.resolveServerUrl();
+      } else {
+        // Fallback if config.js didn't load
+        const h = window.location.hostname;
+        _serverBase = (h === 'localhost' || h === '127.0.0.1')
+          ? 'http://localhost:3000'
+          : `http://${h}:3000`;
+      }
+    } catch (e) {
+      _serverBase = 'http://localhost:3000';
     }
-  }
-  const API_URL = _serverBase;
-  const WS_URL  = _serverBase.replace(/^http/, 'ws');
+    _serverBase = _serverBase.replace(/\/+$/, '');
+    API_URL = _serverBase;
+    WS_URL  = _serverBase.replace(/^http/, 'ws');
+    _resolveReady();
+  })();
 
   // ──────────────────────────────────────────────────────────────
   // WebSocket Manager
@@ -50,7 +61,8 @@
 
     connect(role = 'unknown') {
       this.role = role;
-      this._connect();
+      // Wait for URL resolution before connecting
+      _readyPromise.then(() => this._connect());
     }
 
     _connect() {
@@ -131,6 +143,7 @@
   // ──────────────────────────────────────────────────────────────
 
   async function apiPost(path, body = {}) {
+    await _readyPromise;
     const resp = await fetch(`${API_URL}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -140,6 +153,7 @@
   }
 
   async function apiGet(path) {
+    await _readyPromise;
     const resp = await fetch(`${API_URL}${path}`);
     return resp.json();
   }

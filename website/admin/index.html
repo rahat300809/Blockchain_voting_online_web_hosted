@@ -687,6 +687,21 @@
       document.getElementById('resultsContainer').innerHTML = '';
       document.getElementById('resTotalVotes').textContent = '0';
     });
+
+    // ─── Fetch current voting-day state on connect ───
+    async function initVotingDayStatus() {
+      try {
+        const r = await api.get('/api/admin/voting-day-status');
+        if (r.ok) updateVotingDayUI(r.votingDayOn);
+      } catch (_) {}
+    }
+    ws.on('connected', () => { initVotingDayStatus(); });
+    ws.on('state_sync', (data) => {
+      if (data && typeof data.votingDayOn === 'boolean') {
+        updateVotingDayUI(data.votingDayOn);
+      }
+    });
+
     // ─── Voting Day Toggle ───
     document.getElementById('toggleVotingDayBtn').addEventListener('click', async () => {
       const btn = document.getElementById('toggleVotingDayBtn');

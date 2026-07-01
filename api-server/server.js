@@ -261,6 +261,11 @@ app.post('/api/admin/toggle-voting-day', async (req, res) => {
   }
 });
 
+// ── NEW v3.0: Voting Day Status (read-only) ─────────────────
+app.get('/api/admin/voting-day-status', (req, res) => {
+  res.json({ ok: true, votingDayOn: electionState.votingDayOn });
+});
+
 // ── NEW v3.0: Audit Ledger ───────────────────────────────────
 app.get('/api/admin/audit-ledger', async (req, res) => {
   try {
@@ -447,6 +452,52 @@ app.get('*', (req, res) => {
 // Start
 // ──────────────────────────────────────────────────────────────
 
+// ── Auto-detect tunnel URL from log files ────────────────────
+function detectTunnelUrl() {
+  const logCandidates = [
+    { file: 'pinggy.log',  regex: /https:\/\/[\w.-]+\.free\.pinggy\.link/g },
+    { file: 'pinggy.log',  regex: /https:\/\/[\w.-]+\.pinggy\.link/g },
+    { file: 'lhr3.log',   regex: /https:\/\/[a-f0-9]+\.lhr\.life/g },
+    { file: 'lhr2.log',   regex: /https:\/\/[a-f0-9]+\.lhr\.life/g },
+    { file: 'lhr.log',    regex: /https:\/\/[a-f0-9]+\.lhr\.life/g },
+  ];
+
+  for (const { file, regex } of logCandidates) {
+    const logFile = path.join(__dirname, '..', file);
+    try {
+      if (!fs.existsSync(logFile)) continue;
+      let content = fs.readFileSync(logFile, 'utf8');
+      if (content.includes('\u0000')) {
+        content = fs.readFileSync(logFile, 'utf16le');
+      }
+      const matches = [...content.matchAll(regex)];
+      if (matches.length > 0) {
+        return matches[matches.length - 1][0];
+      }
+    } catch (_) {}
+  }
+  return null;
+}
+
+let _lastPublishedTunnelUrl = null;
+
+async function tryPublishTunnelUrl() {
+  const tunnelUrl = detectTunnelUrl();
+  if (tunnelUrl && tunnelUrl !== _lastPublishedTunnelUrl) {
+    _lastPublishedTunnelUrl = tunnelUrl;
+    console.log(`  ➤  Tunnel   → ${tunnelUrl}`);
+    await firebase.publishServerUrl(tunnelUrl);
+  } else if (!tunnelUrl) {
+    console.warn('  ⚠️  No tunnel URL found — run START_SERVER.bat to create one');
+  }
+}
+
+// ── GET /api/tunnel/url — returns current tunnel URL ────────
+app.get('/api/tunnel/url', (req, res) => {
+  const url = detectTunnelUrl();
+  res.json({ ok: true, tunnelUrl: url || null, localUrl: `http://localhost:${PORT}` });
+});
+
 server.listen(PORT, '0.0.0.0', async () => {
   console.log('');
   console.log('╔══════════════════════════════════════════════════╗');
@@ -461,6 +512,12 @@ server.listen(PORT, '0.0.0.0', async () => {
   console.log(`  ➤  Vote     → http://localhost:${PORT}/vote`);
   console.log('');
   firebase.init();
+
+  // First publish attempt after 5s (tunnel needs time to start)
+  setTimeout(tryPublishTunnelUrl, 5000);
+
+  // Re-publish every 5 minutes so Firestore always has the latest URL
+  setInterval(tryPublishTunnelUrl, 5 * 60 * 1000);
 });
 
 // Graceful shutdown

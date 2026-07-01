@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlockVote — Blockchain Voting System</title>
+  <meta name="description" content="Ultra-secure blockchain-based voting system with AES-256 encryption, SHA-256 hashing, and real-time WebSocket synchronization.">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <style>
+    /* ─── Landing-specific styles ─── */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 20px;
+      background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
+      font-size: 0.75rem; font-weight: 600; color: var(--c-primary);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 24px;
+    }
+    .hero-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c-success); animation: pulse 2s infinite; }
+    .hero-title {
+      font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    .hero-title .gradient {
+      background: linear-gradient(135deg, #60a5fa, #06b6d4, #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-desc {
+      font-size: 1.1rem; color: var(--c-text-muted); max-width: 600px;
+      margin: 0 auto 48px; line-height: 1.7;
+    }
+
+    /* Tech badges */
+    .tech-strip {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 64px;
+    }
+    .tech-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--c-surface-2); border: 1px solid var(--c-border);
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 0.78rem; color: var(--c-text-dim); font-family: var(--font-mono);
+    }
+    .tech-badge svg { width: 14px; height: 14px; }
+
+    /* Terminal cards grid */
+    .terminals-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px; margin-bottom: 64px;
+    }
+    @media (max-width: 768px) { .terminals-grid { grid-template-columns: 1fr; } }
+
+    .terminal-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-xl); padding: 32px;
+      text-decoration: none; color: inherit;
+      transition: all 0.25s var(--ease-out);
+      display: flex; flex-direction: column; gap: 16px;
+      position: relative; overflow: hidden;
+    }
+    .terminal-card::before {
+      content: ''; position: absolute; inset: 0; border-radius: var(--r-xl);
+      opacity: 0; transition: opacity 0.25s;
+    }
+    .terminal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .terminal-card:hover::before { opacity: 1; }
+
+    .terminal-card.tc-admin { border-color: rgba(245,158,11,0.25); }
+    .terminal-card.tc-admin::before { background: radial-gradient(ellipse at top left, rgba(245,158,11,0.08), transparent 70%); }
+    .terminal-card.tc-admin:hover { border-color: rgba(245,158,11,0.5); box-shadow: 0 8px 48px rgba(245,158,11,0.15); }
+
+    .terminal-card.tc-agent { border-color: rgba(6,182,212,0.25); }
+    .terminal-card.tc-agent::before { background: radial-gradient(ellipse at top left, rgba(6,182,212,0.08), transparent 70%); }
+    .terminal-card.tc-agent:hover { border-color: rgba(6,182,212,0.5); box-shadow: 0 8px 48px rgba(6,182,212,0.15); }
+
+    .terminal-card.tc-register { border-color: rgba(139,92,246,0.25); }
+    .terminal-card.tc-register::before { background: radial-gradient(ellipse at top left, rgba(139,92,246,0.08), transparent 70%); }
+    .terminal-card.tc-register:hover { border-color: rgba(139,92,246,0.5); box-shadow: 0 8px 48px rgba(139,92,246,0.15); }
+
+    .terminal-card.tc-voter { border-color: rgba(16,185,129,0.25); }
+    .terminal-card.tc-voter::before { background: radial-gradient(ellipse at top left, rgba(16,185,129,0.08), transparent 70%); }
+    .terminal-card.tc-voter:hover { border-color: rgba(16,185,129,0.5); box-shadow: 0 8px 48px rgba(16,185,129,0.15); }
+
+    .tc-icon {
+      width: 56px; height: 56px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center; font-size: 26px;
+    }
+    .tc-admin .tc-icon    { background: rgba(245,158,11,0.15); }
+    .tc-agent .tc-icon    { background: rgba(6,182,212,0.15);  }
+    .tc-register .tc-icon { background: rgba(139,92,246,0.15); }
+    .tc-voter .tc-icon    { background: rgba(16,185,129,0.15); }
+
+    .tc-title { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+    .tc-desc  { font-size: 0.875rem; color: var(--c-text-muted); line-height: 1.6; }
+    .tc-steps { display: flex; flex-direction: column; gap: 8px; }
+    .tc-step  { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--c-text-dim); }
+    .tc-step-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .tc-admin .tc-step-dot    { background: var(--c-admin);    }
+    .tc-agent .tc-step-dot    { background: var(--c-agent);    }
+    .tc-register .tc-step-dot { background: var(--c-register); }
+    .tc-voter .tc-step-dot    { background: var(--c-voter);    }
+
+    .tc-arrow {
+      position: absolute; bottom: 24px; right: 24px;
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; opacity: 0.3; transition: all 0.2s;
+    }
+    .terminal-card:hover .tc-arrow { opacity: 1; transform: translateX(4px); }
+
+    /* Security strip */
+    .security-strip {
+      background: var(--c-surface-2); border: 1px solid var(--c-border);
+      border-radius: var(--r-lg); padding: 32px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 24px; margin-bottom: 64px;
+    }
+    .security-item { text-align: center; }
+    .security-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+    .security-label { font-size: 0.8rem; font-weight: 700; color: var(--c-text); }
+    .security-desc  { font-size: 0.72rem; color: var(--c-text-muted); margin-top: 4px; }
+
+    /* Flow diagram */
+    .flow-title { text-align: center; font-size: 1.3rem; font-weight: 800; margin-bottom: 32px; }
+    .flow-diagram {
+      display: flex; align-items: center; gap: 8px;
+      overflow-x: auto; padding-bottom: 8px;
+      justify-content: center; flex-wrap: wrap; gap: 16px;
+    }
+    .flow-node {
+      background: var(--c-surface-2); border: 1px solid var(--c-border);
+      border-radius: var(--r-md); padding: 16px 20px;
+      text-align: center; min-width: 130px;
+    }
+    .flow-node-num { font-size: 0.7rem; color: var(--c-text-muted); margin-bottom: 4px; }
+    .flow-node-title { font-size: 0.85rem; font-weight: 700; }
+    .flow-node-sub { font-size: 0.7rem; color: var(--c-text-muted); margin-top: 4px; }
+    .flow-arrow { font-size: 1.5rem; color: var(--c-border-glow); flex-shrink: 0; }
+
+    /* Live counter */
+    .live-counter {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px;
+      margin-bottom: 64px;
+    }
+    .lc-item {
+      background: var(--glass-bg); border: 1px solid var(--c-border);
+      border-radius: var(--r-md); padding: 20px; text-align: center;
+    }
+    .lc-value { font-size: 2rem; font-weight: 800; font-family: var(--font-mono); letter-spacing: -0.04em; color: var(--c-primary); }
+    .lc-label { font-size: 0.72rem; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+    @media (max-width: 992px) {
+      .landing-split { grid-template-columns: 1fr !important; }
+    }
+
+    footer {
+      border-top: 1px solid var(--c-border); padding: 32px 0;
+      text-align: center; color: var(--c-text-muted); font-size: 0.8rem;
+    }
+    footer .footer-brand { color: var(--c-primary); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+
+  <div class="page-wrapper">
+    <!-- Navbar -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+      <div class="container navbar-inner">
+        <a href="/" class="navbar-brand" aria-label="BlockVote Home">
+          <div class="logo-icon" aria-hidden="true">🔗</div>
+          <div class="brand-text">Block<span>Vote</span></div>
+        </a>
+        <div class="navbar-status" aria-label="Server connection status">
+          <div class="status-dot" id="statusDot" role="status"></div>
+          <span class="status-text" id="statusText">Connecting...</span>
+        </div>
+      </div>
+    </nav>
+
+    <main class="page-wrapper">
+      <div class="container">
+
+        <!-- Hero -->
+        <section class="hero" aria-labelledby="hero-heading">
+          <div class="hero-badge">
+            <div class="hero-badge-dot" aria-hidden="true"></div>
+            Blockchain-Secured · AES-256 Encrypted · Live
+          </div>
+          <h1 class="hero-title" id="hero-heading">
+            The <span class="gradient">Unbreakable</span><br>Voting System
+          </h1>
+          <p class="hero-desc">
+            Every vote encrypted with AES-256-CBC. Every block chained with SHA-256. 
+            Proof-of-work mining. Real-time tamper detection. 
+            Zero trust — Zero compromise.
+          </p>
+          <div class="tech-strip" role="list" aria-label="Security technologies">
+            <div class="tech-badge" role="listitem">🔐 AES-256-CBC</div>
+            <div class="tech-badge" role="listitem">🔗 SHA-256 Chain</div>
+            <div class="tech-badge" role="listitem">⛏️ Proof-of-Work</div>
+            <div class="tech-badge" role="listitem">📡 WebSocket Live</div>
+            <div class="tech-badge" role="listitem">🧬 Anonymous Vote</div>
+            <div class="tech-badge" role="listitem">🛡️ Tamper-Proof</div>
+          </div>
+        </section>
+
+        <!-- Live Stats -->
+        <section class="live-counter" aria-label="Live election statistics">
+          <div class="lc-item">
+            <div class="lc-value" id="statVotesCast">—</div>
+            <div class="lc-label">Votes Cast</div>
+          </div>
+          <div class="lc-item">
+            <div class="lc-value" id="statCandidates">—</div>
+            <div class="lc-label">Candidates</div>
+          </div>
+          <div class="lc-item">
+            <div class="lc-value" id="statRegistered">—</div>
+            <div class="lc-label">Registered Voters</div>
+          </div>
+          <div class="lc-item">
+            <div class="lc-value" id="statClients">—</div>
+            <div class="lc-label">Active Terminals</div>
+          </div>
+        </section>
+
+        <!-- Terminal Cards -->
+        <section aria-labelledby="terminals-heading">
+          <h2 id="terminals-heading" class="sr-only">Terminal Access Panels</h2>
+          <div class="terminals-grid">
+
+            <!-- Admin / Election Commission -->
+            <a href="/admin" class="terminal-card tc-admin" id="link-admin" aria-label="Election Commission Panel">
+              <div class="tc-icon" aria-hidden="true">🏛️</div>
+              <div>
+                <div class="tc-title">Election Commission</div>
+                <div class="tc-desc">Manage the entire election: load voter rolls, add candidates, view live results, and verify blockchain integrity.</div>
+              </div>
+              <div class="tc-steps" aria-label="Admin responsibilities">
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Load voter file & authorize voters</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Add election candidates</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Monitor live results dashboard</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Verify blockchain integrity</div>
+              </div>
+              <div class="tc-arrow" aria-hidden="true">→</div>
+            </a>
+
+            <!-- Polling Agent -->
+            <a href="/agent" class="terminal-card tc-agent" id="link-agent" aria-label="Polling Agent Panel">
+              <div class="tc-icon" aria-hidden="true">🧑‍💼</div>
+              <div>
+                <div class="tc-title">Polling Agent</div>
+                <div class="tc-desc">Verify voter fingerprints and issue one-time 6-digit OTPs that expire in 5 minutes for secure vote casting.</div>
+              </div>
+              <div class="tc-steps" aria-label="Agent responsibilities">
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Verify voter identity & fingerprint</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Issue time-limited 6-digit OTP</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>OTP auto-expires in 5 minutes</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>One OTP per voter per session</div>
+              </div>
+              <div class="tc-arrow" aria-hidden="true">→</div>
+            </a>
+
+            <!-- Voter Registration -->
+            <a href="/register" class="terminal-card tc-register" id="link-register" aria-label="Voter Registration Panel">
+              <div class="tc-icon" aria-hidden="true">📋</div>
+              <div>
+                <div class="tc-title">Voter Registration</div>
+                <div class="tc-desc">Register as a voter using your voter number and fingerprint. Receive a unique cryptographic secret key stored only by you.</div>
+              </div>
+              <div class="tc-steps" aria-label="Registration steps">
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Enter voter ID & fingerprint</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>System validates against voter roll</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Receive your unique secret key</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Key is NEVER stored in blockchain</div>
+              </div>
+              <div class="tc-arrow" aria-hidden="true">→</div>
+            </a>
+
+            <!-- Vote Casting -->
+            <a href="/vote" class="terminal-card tc-voter" id="link-voter" aria-label="Vote Casting Panel">
+              <div class="tc-icon" aria-hidden="true">🗳️</div>
+              <div>
+                <div class="tc-title">Cast Your Vote</div>
+                <div class="tc-desc">Log in with your secret key and fingerprint, enter your OTP from the polling agent, then cast your anonymous vote on the blockchain.</div>
+              </div>
+              <div class="tc-steps" aria-label="Voting steps">
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Login with secret key + fingerprint</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Enter OTP from polling agent</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Select your candidate</div>
+                <div class="tc-step"><div class="tc-step-dot" aria-hidden="true"></div>Vote recorded anonymously on-chain</div>
+              </div>
+              <div class="tc-arrow" aria-hidden="true">→</div>
+            </a>
+
+          </div>
+        </section>
+
+        <!-- Live Results & Public Blockchain Ledger -->
+        <section class="section" style="margin-bottom: 64px">
+          <div class="landing-split" style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px">
+            <!-- Card: Live Results -->
+            <div class="card role-admin" style="background: rgba(0,0,0,0.15)">
+              <div class="card-header">
+                <div class="card-icon role-admin" style="background: rgba(59,130,246,0.15)">📊</div>
+                <div>
+                  <div class="card-title">Live Election Tally</div>
+                  <div class="card-subtitle">Real-time vote distribution from the blockchain</div>
+                </div>
+              </div>
+              <div id="resultsContainer" class="results-container mt-lg" style="margin-top: 24px">
+                <div class="text-muted" style="font-size:0.875rem">No votes recorded yet. Loading...</div>
+              </div>
+            </div>
+
+            <!-- Card: Public Blockchain Ledger -->
+            <div class="card role-voter" style="background: rgba(0,0,0,0.15)">
+              <div class="card-header">
+                <div class="card-icon role-voter" style="background: rgba(16,185,129,0.15)">📜</div>
+                <div>
+                  <div class="card-title">Public Blockchain Ledger</div>
+                  <div class="card-subtitle">Immutable audit trail of all transactions and blocks</div>
+                </div>
+              </div>
+              <p class="text-muted" style="font-size: 0.8rem; margin: 12px 0 16px">
+                Every voter account, permission change, configuration, and vote is recorded in real-time.
+              </p>
+              <div id="publicLedgerLog" class="integrity-log" style="max-height: 250px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.72rem; padding: 12px; background: rgba(0,0,0,0.3); border-radius: var(--r-md); text-align: left; line-height: 1.5">
+                <span class="log-info">>>> Loading ledger entries...</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Voting Flow Diagram -->
+        <section class="section" aria-labelledby="flow-heading">
+          <h2 class="flow-title" id="flow-heading">How It Works</h2>
+          <div class="flow-diagram" role="list" aria-label="Election process flow">
+            <div class="flow-node" role="listitem">
+              <div class="flow-node-num">01</div>
+              <div class="flow-node-title">Admin Setup</div>
+              <div class="flow-node-sub">Load voters + add candidates</div>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <div class="flow-node" role="listitem">
+              <div class="flow-node-num">02</div>
+              <div class="flow-node-title">Registration</div>
+              <div class="flow-node-sub">Voter gets secret key</div>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <div class="flow-node" role="listitem">
+              <div class="flow-node-num">03</div>
+              <div class="flow-node-title">OTP Issued</div>
+              <div class="flow-node-sub">Agent verifies + issues OTP</div>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <div class="flow-node" role="listitem">
+              <div class="flow-node-num">04</div>
+              <div class="flow-node-title">Vote Cast</div>
+              <div class="flow-node-sub">Anonymous vote → blockchain</div>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <div class="flow-node" role="listitem">
+              <div class="flow-node-num">05</div>
+              <div class="flow-node-title">Results</div>
+              <div class="flow-node-sub">Admin views live tally</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Security Features -->
+        <section class="security-strip" aria-labelledby="security-heading">
+          <h2 class="sr-only" id="security-heading">Security Features</h2>
+          <div class="security-item">
+            <span class="security-icon" aria-hidden="true">🔐</span>
+            <div class="security-label">AES-256-CBC</div>
+            <div class="security-desc">Every block encrypted with OpenSSL EVP</div>
+          </div>
+          <div class="security-item">
+            <span class="security-icon" aria-hidden="true">🔗</span>
+            <div class="security-label">SHA-256 Chain</div>
+            <div class="security-desc">Cryptographic hash linking blocks</div>
+          </div>
+          <div class="security-item">
+            <span class="security-icon" aria-hidden="true">⛏️</span>
+            <div class="security-label">Proof-of-Work</div>
+            <div class="security-desc">Nonce mining makes forging expensive</div>
+          </div>
+          <div class="security-item">
+            <span class="security-icon" aria-hidden="true">👁️</span>
+            <div class="security-label">Tamper Detection</div>
+            <div class="security-desc">Index + prevHash embedded in every block</div>
+          </div>
+          <div class="security-item">
+            <span class="security-icon" aria-hidden="true">🧬</span>
+            <div class="security-label">Anonymous Votes</div>
+            <div class="security-desc">Vote stored as salted hash — untraceable</div>
+          </div>
+          <div class="security-item">
+            <span class="security-icon" aria-hidden="true">⏱️</span>
+            <div class="security-label">OTP System</div>
+            <div class="security-desc">Cryptographically random, 5-min expiry</div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>
+          <span class="footer-brand">BlockVote v2.0</span> — 
+          AES-256 Encrypted · SHA-256 Blockchain · WebSocket Real-Time · 
+          &copy; <span id="year"></span> Blockchain Voting System
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/config.js"></script>`n    <script src="/js/websocket-client.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Connect WebSocket
+    const { ws, api, ui } = window.VotingSystem;
+    ws.connect('landing');
+
+    // Update live stats
+    async function updateStats() {
+      try {
+        const r = await api.get('/api/state');
+        if (r.ok) {
+          const s = r.state;
+          document.getElementById('statVotesCast').textContent = s.votesCast ?? '0';
+          document.getElementById('statCandidates').textContent = s.candidates?.length ?? '0';
+          document.getElementById('statRegistered').textContent = s.registeredCount ?? '0';
+          
+          // Render results bars
+          ui.renderVoteBars('resultsContainer', s.votes || {});
+        }
+        const h = await api.get('/api/health');
+        if (h.ok) {
+          document.getElementById('statClients').textContent = h.clients ?? '0';
+        }
+      } catch (e) { /* server may not be running yet */ }
+    }
+
+    // Load ledger content
+    async function loadLedger() {
+      try {
+        const r = await api.get('/api/ledger');
+        const log = document.getElementById('publicLedgerLog');
+        if (r.ok && r.lines) {
+          if (r.lines.length === 0) {
+            log.innerHTML = '<span class="text-muted">No blockchain entries yet.</span>';
+            return;
+          }
+          log.innerHTML = r.lines.map(l => {
+            if (l.includes('[VOTE CAST]') || l.includes('USER_VOTE'))   return `<div class="log-ok">${l}</div>`;
+            if (l.includes('[TAMPER]') || l.includes('COMPROMISED'))    return `<div class="log-tamper">${l}</div>`;
+            if (l.includes('[REGISTRATION]') || l.includes('[OK]'))     return `<div class="log-ok">${l}</div>`;
+            if (l.includes('[SECURITY]') || l.includes('[PERMISSION]')) return `<div class="log-warn">${l}</div>`;
+            if (l.includes('[CONFIG]') || l.includes('[CANDIDATE]'))    return `<div class="log-info">${l}</div>`;
+            return `<div class="log-info">${l}</div>`;
+          }).join('');
+        }
+      } catch (_) {}
+    }
+
+    async function refreshAll() {
+      await updateStats();
+      await loadLedger();
+    }
+
+    refreshAll();
+    setInterval(refreshAll, 10000);
+
+    // Live event handlers
+    ws.on('vote_cast', (data) => {
+      refreshAll();
+      ui.toast('🗳️ A new vote has been cast on the blockchain!', 'info');
+    });
+    ws.on('candidate_added', (data) => {
+      refreshAll();
+      ui.toast(`📌 Candidate "${data.name}" added to election`, 'info');
+    });
+    ws.on('voter_file_loaded', () => {
+      refreshAll();
+      ui.toast('📂 Voter file loaded by Election Commission', 'info');
+    });
+    ws.on('factory_reset', () => {
+      refreshAll();
+      ui.toast('⚠️ Election data has been reset', 'warn');
+    });
+    ws.on('voting_day_toggled', () => {
+      refreshAll();
+    });
+  </script>
+</body>
+</html>
+
